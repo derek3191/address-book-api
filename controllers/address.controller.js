@@ -8,7 +8,6 @@ exports.create = (req, res) => {
         res.status(400).send({message: "content cannot be empty"});
         return;
     }
-    
 
     var newPeople = [];
     if (req.body.address.people !== undefined){
@@ -22,14 +21,11 @@ exports.create = (req, res) => {
         });
     }
 
-    console.log(`req.address = ${req.body.address.groups}`);
     var newGroup = [];
     if (req.body.address.groups !== undefined){
         req.body.address.groups.forEach(g => {
             newGroup.push(g);
         });
-    } else {
-        newGroup.push('nothing');
     }
 
     const address = new Address({
@@ -42,8 +38,7 @@ exports.create = (req, res) => {
         groups: newGroup
     });
 
-    address
-        .save(address)
+    address.save(address)
         .then(data => {
             res.send(data);
         })
@@ -73,26 +68,96 @@ exports.findAll = (req, res) => {
 };
 
 // Find a single Address with an id
-exports.findOne = (req, res) => {
-  
+exports.findById = (req, res) => {
+    const id = req.params.id;
+
+    Address.findById(id)
+        .then(data => {
+            if (!data) {
+                res.status(404).send({ message: "Not found Address with id " + id });
+            } else {
+                res.send(data);  
+            } 
+        })
+        .catch(err => {
+            res.status(500).send({ message: "Error retrieving Address with id=" + id });
+        });
 };
 
-// Update a Address by the id in the request
+// Update an Address by the id in the request
 exports.update = (req, res) => {
-  
+    if (!req.body) {
+        return res.status(400).send({
+            message: "Data to update can not be empty!"
+        });
+    }
+
+    const id = req.params.id;
+
+    Address.findByIdAndUpdate(id, req.body.address, { useFindAndModify: false })
+        .then(data => {
+            if (!data) {
+                res.status(404).send({
+                    message: `Cannot update Address with id=${id}. Address was not found!`
+                });
+            } else res.send({ message: "Address was updated successfully." });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error updating Address with id=" + id
+            });
+        });
 };
 
-// Delete a Address with the specified id in the request
+// Delete an Address with the specified id in the request
 exports.delete = (req, res) => {
-  
+    const id = req.params.id;
+
+    Address.findByIdAndRemove(id)
+        .then(data => {
+            if (!data) {
+                res.status(404).send({
+                    message: `Cannot delete Address with id=${id}. Maybe Address was not found!`
+                });
+            } else {
+                res.send({
+                    message: "Address was deleted successfully!"
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Could not delete Address with id=" + id
+            });
+        });
 };
 
 // Delete all Addresses from the database.
 exports.deleteAll = (req, res) => {
-  
+    Address.deleteMany({})
+        .then(data => {
+            res.send({
+                message: `${data.deletedCount} Addresss were deleted successfully!`
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                err.message || "Some error occurred while removing all Addresses."
+            });
+        });
 };
 
-// Find all published Addresses
-exports.findAllPublished = (req, res) => {
-  
+// Find distinct groups for Addresses
+exports.findAllGroups = (req, res) => {
+    Address.distinct("groups")
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                err.message || "Some error occurred while retrieving Addresses."
+            });
+        });
 };

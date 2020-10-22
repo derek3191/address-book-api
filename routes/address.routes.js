@@ -10,10 +10,10 @@ module.exports = app => {
     router.get("/", address.findAll);
 
     // Retrieve all published address
-    router.get("/published", address.findAllPublished);
+    router.get("/groups", address.findAllGroups);
 
     // Retrieve a single address with id
-    router.get("/:id", address.findOne);
+    router.get("/:id", address.findById);
 
     // Update a address with id
     router.put("/:id", address.update);
