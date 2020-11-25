@@ -12,6 +12,12 @@ module.exports = app => {
     // Retrieve all published address
     router.get("/groups", address.findAllGroups);
 
+    // Retrieve all published addresses by person
+    router.get("/person", address.findAddressesForPerson);
+
+    // Retreive all addresses filtered by multiple fields
+    router.post("/filter", address.filterAddresses);
+
     // Retrieve a single address with id
     router.get("/:id", address.findById);
 

@@ -161,3 +161,55 @@ exports.findAllGroups = (req, res) => {
             });
         });
 };
+
+exports.findAddressesForPerson = (req, res) => {
+    Address.find({
+        $or: [
+            { "people.firstName": { $regex: req.query.name , $options: "i"} },
+            { "people.lastName": { $regex: req.query.name , $options: "i"} }
+          ]
+         })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: err.message || "Some error occurred while retreiving Addresses for people"
+            });
+        });
+};
+
+exports.filterAddresses = (req, res) => {
+    let query = [];
+    let queryPredicate = {};
+
+    if (req.body.name !== undefined && req.body.name !== ""){
+        query.push(
+            { "people.firstName": { $regex: req.body.name , $options: "i"} },
+            { "people.lastName": { $regex: req.body.name , $options: "i"} }
+        );
+    }
+    if (req.body.address !== undefined && req.body.address !== ""){
+        query.push(
+            { "addressLine1": { $regex: req.body.address, $options: "i" }},
+            { "addressLine2": { $regex: req.body.address, $options: "i" }},
+            { "city": { $regex: req.body.address, $options: "i" }},
+            { "state": { $regex: req.body.address, $options: "i" }},
+            { "zip": { $regex: req.body.address, $options: "i" }}
+        );
+    }
+    
+    if (query.length > 0){
+        queryPredicate = { $or: query };
+    }
+    
+    Address.find(queryPredicate)
+    .then(data => {
+        res.send(data);
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: err.message || "Some error occurred while retreiving Addresses for people"
+        });
+    });
+}
