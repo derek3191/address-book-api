@@ -88,13 +88,13 @@ exports.findById = (req, res) => {
 exports.update = (req, res) => {
     if (!req.body) {
         return res.status(400).send({
-            message: "Data to update can not be empty!"
+            message: "Data to update cannot be empty!"
         });
     }
 
     const id = req.params.id;
-
-    Address.findByIdAndUpdate(id, req.body.address, { useFindAndModify: false })
+    console.log(req.body);
+    Address.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
         .then(data => {
             if (!data) {
                 res.status(404).send({
